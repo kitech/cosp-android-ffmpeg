@@ -1,6 +1,19 @@
 #!/bin/sh
 
-ARCH=
+usage()
+{
+  echo "Usage: $0 --prefix=PATH --android-ndk=PATH [--abi=ABI]"
+  echo "  --prefix=PATH        installation prefix"
+  echo "  --android-ndk=PATH   path to Android NDK installation"
+  echo "                       Only CrystaX distribution accepted!"
+  echo "                       See http://www.crystax.net/android/ndk.php"
+  echo "  --abi=ABI            Optional ABI parameter"
+  echo "                       Supported values are 'armeabi', 'armeabi-v7a' and 'x86'"
+  echo "                       [default: armeabi]"
+  exit $1
+}
+
+ABI=
 ANDROID_NDK_ROOT=
 PREFIX=
 
@@ -8,12 +21,15 @@ while true; do
   option=$1
   [ "x$option" = "x" ] && break
   case $option in
-    --arch=* )
-      ARCH=`expr "x$option" : "x--arch=\(.*\)"`
+    -h | --help )
+      usage 0
       ;;
-    --arch )
+    --abi=* )
+      ABI=`expr "x$option" : "x--abi=\(.*\)"`
+      ;;
+    --abi )
       shift
-      ARCH=$1
+      ABI=$1
       ;;
     --android-ndk=* )
       ANDROID_NDK_ROOT=`expr "x$option" : "x--android-ndk=\(.*\)"`
@@ -30,56 +46,54 @@ while true; do
       PREFIX=$1
       ;;
     * )
-      echo "Unknown option: $option"
-      exit 1
+      echo "ERROR: unknown option: $option"
+      usage 1
       ;;
   esac
   shift
 done
 
+if [ "x$PREFIX" = "x" ]; then
+  echo "ERROR: no installation prefix specified"
+  usage 1
+fi
+
+echo "Using installation prefix: $PREFIX"
+
 if [ "x$ANDROID_NDK_ROOT" = "x" ]; then
-echo "No Android NDK specified (--android-ndk=PATH)"
-exit 1
+  echo "ERROR: no Android NDK specified"
+  usage 1
 fi
 
 TOOLCHAIN_SCRIPT=$ANDROID_NDK_ROOT/build/tools/make-standalone-toolchain.sh
 if [ ! -x $TOOLCHAIN_SCRIPT ]; then
-echo "Can't find make-standalone-toolchain.sh in $ANDROID_NDK_ROOT (corrupted NDK installation?)"
-exit 1
+  echo "Can't find make-standalone-toolchain.sh in $ANDROID_NDK_ROOT (corrupted NDK installation?)"
+  exit 1
 fi
 
 echo "Using Android NDK: $ANDROID_NDK_ROOT"
 
-if [ "x$PREFIX" = "x" ]; then
-  echo "No installation prefix specified (--prefix=PATH)"
-  exit 1
-fi
-
-[ "x$ARCH" = "x" ] && ARCH=arm
-
 TOOLCHAIN_VERSION=4.4.3
 
-case $ARCH in
-  arm )
-    TOOLCHAIN_ABI=arm-linux-androideabi
+[ "x$ABI" = "x" ] && ABI=armeabi
+case $ABI in
+  armeabi* )
+    TOOLCHAIN_PREFIX=arm-linux-androideabi
     TOOLCHAIN=arm-linux-androideabi-$TOOLCHAIN_VERSION
-    ABI=armeabi
     ;;
   x86 )
-    TOOLCHAIN_ABI=i686-android-linux
+    TOOLCHAIN_PREFIX=i686-android-linux
     TOOLCHAIN=x86-$TOOLCHAIN_VERSION
-    ABI=x86
     ;;
   * )
-    echo "Unknown CPU architecture: $ARCH"
-    exit 1
+    echo "ERROR: unknown abi: $ABI"
+    usage 1
     ;;
 esac
 
 echo "Using CPU architecture: $ARCH"
-echo "Using toolchain ABI: $TOOLCHAIN_ABI"
-
-echo "Using installation prefix: $PREFIX"
+echo "Using ABI: $ABI"
+echo "Using toolchain: $TOOLCHAIN"
 
 TOOLCHAIN_DIR=/tmp/android-toolchain/$USER/$TOOLCHAIN
 
@@ -93,4 +107,4 @@ fi
 PATH=$TOOLCHAIN_DIR/bin:$PATH
 export PATH
 
-export ARCH ABI TOOLCHAIN_ABI
+export ARCH ABI TOOLCHAIN_PREFIX
