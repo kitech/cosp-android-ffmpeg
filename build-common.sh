@@ -80,10 +80,12 @@ case $ABI in
   armeabi* )
     TOOLCHAIN_PREFIX=arm-linux-androideabi
     TOOLCHAIN=arm-linux-androideabi-$TOOLCHAIN_VERSION
+    ARCH=arm
     ;;
   x86 )
     TOOLCHAIN_PREFIX=i686-android-linux
     TOOLCHAIN=x86-$TOOLCHAIN_VERSION
+    ARCH=x86
     ;;
   * )
     echo "ERROR: unknown abi: $ABI"
