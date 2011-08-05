@@ -99,11 +99,12 @@ echo "Using toolchain: $TOOLCHAIN"
 
 TOOLCHAIN_DIR=/tmp/android-toolchain/$USER/$TOOLCHAIN
 
-NDK_BUILT_FROM=`cat $TOOLCHAIN_DIR/.done 2>/dev/null`
-if [ "x$NDK_BUILT_FROM" != "x$ANDROID_NDK_ROOT" ]; then
+NDK_ID_NEW=`ls -ld $ANDROID_NDK_ROOT 2>/dev/null | sha1sum | awk '{print $1}'`
+NDK_ID_OLD=`cat $TOOLCHAIN_DIR/.done 2>/dev/null`
+if [ "x$NDK_ID_OLD" != "x$NDK_ID_NEW" ]; then
   rm -Rf $TOOLCHAIN_DIR
   $TOOLCHAIN_SCRIPT --toolchain=$TOOLCHAIN --install-dir=$TOOLCHAIN_DIR || exit 1
-  echo $ANDROID_NDK_ROOT >$TOOLCHAIN_DIR/.done || exit 1
+  echo $NDK_ID_NEW >$TOOLCHAIN_DIR/.done || exit 1
 fi
 
 PATH=$TOOLCHAIN_DIR/bin:$PATH
