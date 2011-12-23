@@ -22,8 +22,8 @@ usage()
   exit $1
 }
 
-OS=`uname -s | tr '[A-Z]' '[a-z]'`
-case $OS in
+HOST_OS=`uname -s | tr '[A-Z]' '[a-z]'`
+case $HOST_OS in
   darwin* )
     HOST_TAG=darwin-x86
     ;;
@@ -34,10 +34,11 @@ case $OS in
     HOST_TAG=windows
     ;;
   * )
-    echo "Unsupported OS detected: $OS"
+    echo "ERROR: Unsupported OS detected: $HOST_OS" >&2
     exit 1
     ;;
 esac
+export HOST_TAG
 
 if [ "x$1" = "x" ]; then
   usage 0
@@ -146,6 +147,7 @@ fi
 if [ "x$USER" = "x" ]; then
   USER=$$
 fi
+export USER
 
 SHA1SUM=
 for p in sha1sum gsha1sum; do
