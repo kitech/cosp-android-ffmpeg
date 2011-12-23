@@ -132,14 +132,14 @@ if [ "x$PREFIX" = "x" ]; then
 fi
 
 if [ ! -d $PREFIX ]; then
-  mkdir -p $PREFIX
+  mkdir -p $PREFIX >/dev/null 2>&1
   if [ $? -ne 0 ]; then
     echo "ERROR: can't create prefix directory $PREFIX" >&2
     exit 1
   fi
 fi
 
-touch $PREFIX/.dummy
+touch $PREFIX/.dummy >/dev/null 2>&1
 RET=$?
 rm -f $PREFIX/.dummy 2>/dev/null
 if [ $RET -ne 0 ]; then
