@@ -4,21 +4,27 @@ SUPPORTED_ABIS="armeabi armeabi-v7a x86"
 SUPPORTED_TOOLCHAIN_VERSIONS="4.4.3 4.6.3"
 
 ANDROID_NDK_ROOT=
-PREFIX=
+PREFIX=/opt/cosp
 ABI=armeabi
 TOOLCHAIN_VERSION=4.4.3
 OUTDIR=
 
 usage()
 {
-  echo "Usage: $0 --prefix=<path> --android-ndk=<path> [--abi=<abi>] [--toolchain=<version>]"
-  echo "  --prefix=<path>        Installation prefix"
-  echo "  --android-ndk=<path>   Path to Android NDK installation"
-  echo "                         Only CrystaX distribution accepted!"
-  echo "                         See http://www.crystax.net/android/ndk for details"
-  echo "  --abi=<abi>            Optional ABI parameter [default: $ABI]"
+  echo "Usage: $0 [options] <ndk-dir>"
+  echo ""
+  echo "This is build script allowing build COSP android projects"
+  echo "WARNING: Only CrystaX NDK accepted! See http://www.crystax.net/android/ndk for details"
+  echo ""
+  echo "Parameters:"
+  echo "  <ndk-dir>              Path to Android NDK"
+  echo ""
+  echo "Valid options (defaults are in brackets):"
+  echo ""
+  echo "  --prefix=<path>        Installation prefix [$PREFIX]"
+  echo "  --abi=<abi>            Optional ABI parameter [$ABI]"
   echo "                         Supported values: $SUPPORTED_ABIS"
-  echo "  --toolchain=<version>  Optional toolchain version [default: $TOOLCHAIN_VERSION]"
+  echo "  --toolchain=<version>  Optional toolchain version [$TOOLCHAIN_VERSION]"
   echo "                         Supported values: $SUPPORTED_TOOLCHAIN_VERSIONS"
   echo "  --build-out=<path>     Set build directory"
   exit $1
@@ -88,9 +94,12 @@ while true; do
       shift
       OUTDIR=$1
       ;;
-    * )
+    -* )
       echo "ERROR: unknown option: $option" >&2
       usage 1
+      ;;
+    * )
+      ANDROID_NDK_ROOT=$1
       ;;
   esac
   shift
@@ -99,6 +108,22 @@ done
 if [ "x$PREFIX" = "x" ]; then
   echo "ERROR: no installation prefix specified" >&2
   usage 1
+fi
+
+if [ ! -d $PREFIX ]; then
+  mkdir -p $PREFIX
+  if [ $? -ne 0 ]; then
+    echo "ERROR: can't create prefix directory $PREFIX" >&2
+    exit 1
+  fi
+fi
+
+touch $PREFIX/.dummy
+RET=$?
+rm -f $PREFIX/.dummy 2>/dev/null
+if [ $RET -ne 0 ]; then
+  echo "ERROR: looks like $PREFIX is not writable" >&2
+  exit 1
 fi
 
 echo "Using installation prefix: $PREFIX"
