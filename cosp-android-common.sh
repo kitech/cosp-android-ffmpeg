@@ -8,9 +8,11 @@ PREFIX=
 ABI=armeabi
 TOOLCHAIN_VERSION=4.4.3
 
+PROGNAME=`basename $0`
+
 usage()
 {
-  echo "Usage: $0 --prefix=<path> --android-ndk=<path> [--abi=<abi>] [--toolchain=<version>]"
+  echo "Usage: $PROGNAME --prefix=<path> --android-ndk=<path> [--abi=<abi>] [--toolchain=<version>]"
   echo "  --prefix=<path>        Installation prefix"
   echo "  --android-ndk=<path>   Path to Android NDK installation"
   echo "                         Only CrystaX distribution accepted!"
@@ -191,5 +193,5 @@ export PATH
 
 export ANDROID_NDK_ROOT ARCH ABI TOOLCHAIN_PREFIX TOOLCHAIN_VERSION TOOLCHAIN
 
-OUTDIR=/tmp/cosp-$ARCH-$TOOLCHAIN_VERSION-$USER
+OUTDIR=/tmp/cosp-android-$PROGNAME-$ARCH-$TOOLCHAIN_VERSION-$USER
 export OUTDIR
