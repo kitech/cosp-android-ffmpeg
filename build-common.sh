@@ -1,21 +1,47 @@
 #!/bin/sh
 
+SUPPORTED_ABIS="armeabi armeabi-v7a x86"
+SUPPORTED_TOOLCHAIN_VERSIONS="4.4.3 4.6.3"
+
+ANDROID_NDK_ROOT=
+PREFIX=
+ABI=armeabi
+TOOLCHAIN_VERSION=4.4.3
+
 usage()
 {
-  echo "Usage: $0 --prefix=PATH --android-ndk=PATH [--abi=ABI]"
-  echo "  --prefix=PATH        installation prefix"
-  echo "  --android-ndk=PATH   path to Android NDK installation"
-  echo "                       Only CrystaX distribution accepted!"
-  echo "                       See http://www.crystax.net/android/ndk.php"
-  echo "  --abi=ABI            Optional ABI parameter"
-  echo "                       Supported values are 'armeabi', 'armeabi-v7a' and 'x86'"
-  echo "                       [default: armeabi]"
+  echo "Usage: $0 --prefix=<path> --android-ndk=<path> [--abi=<abi>] [--toolchain=<version>]"
+  echo "  --prefix=<path>        Installation prefix"
+  echo "  --android-ndk=<path>   Path to Android NDK installation"
+  echo "                         Only CrystaX distribution accepted!"
+  echo "                         See http://www.crystax.net/android/ndk for details"
+  echo "  --abi=<abi>            Optional ABI parameter [default: $ABI]"
+  echo "                         Supported values: $SUPPORTED_ABIS"
+  echo "  --toolchain=<version>  Optional toolchain version [default: $TOOLCHAIN_VERSION]"
+  echo "                         Supported values: $SUPPORTED_TOOLCHAIN_VERSIONS"
   exit $1
 }
 
-ABI=
-ANDROID_NDK_ROOT=
-PREFIX=
+OS=`uname -s | tr '[A-Z]' '[a-z]'`
+case $OS in
+  darwin* )
+    HOST_TAG=darwin-x86
+    ;;
+  linux* )
+    HOST_TAG=linux-x86
+    ;;
+  cygwin*|mingw* )
+    HOST_TAG=windows
+    ;;
+  * )
+    echo "Unsupported OS detected: $OS"
+    exit 1
+    ;;
+esac
+
+if [ "x$1" = "x" ]; then
+  usage 0
+fi
 
 while true; do
   option=$1
@@ -45,8 +71,15 @@ while true; do
       shift
       PREFIX=$1
       ;;
+    --toolchain=* )
+      TOOLCHAIN_VERSION=`expr "x$option" : "x--toolchain=\(.*\)"`
+      ;;
+    --toolchain )
+      shift
+      TOOLCHAIN_VERSION=$1
+      ;;
     * )
-      echo "ERROR: unknown option: $option"
+      echo "ERROR: unknown option: $option" >&2
       usage 1
       ;;
   esac
@@ -54,14 +87,14 @@ while true; do
 done
 
 if [ "x$PREFIX" = "x" ]; then
-  echo "ERROR: no installation prefix specified"
+  echo "ERROR: no installation prefix specified" >&2
   usage 1
 fi
 
 echo "Using installation prefix: $PREFIX"
 
 if [ "x$ANDROID_NDK_ROOT" = "x" ]; then
-  echo "ERROR: no Android NDK specified"
+  echo "ERROR: no Android NDK specified" >&2
   usage 1
 fi
 
@@ -73,9 +106,24 @@ fi
 
 echo "Using Android NDK: $ANDROID_NDK_ROOT"
 
-TOOLCHAIN_VERSION=4.4.3
+echo $SUPPORTED_ABIS | grep -q $ABI
+if [ $? -ne 0 ]; then
+  echo "ERROR: wrong abi specified: $ABI" >&2
+  echo "       Supported values: $SUPPORTED_ABIS"
+  exit 1
+fi
 
-[ "x$ABI" = "x" ] && ABI=armeabi
+echo "Using ABI: $ABI"
+
+echo $SUPPORTED_TOOLCHAIN_VERSIONS | grep -q $TOOLCHAIN_VERSION
+if [ $? -ne 0 ]; then
+  echo "ERROR: wrong toolchain version: $TOOLCHAIN_VERSION." >&2
+  echo "       Supported values: $SUPPORTED_TOOLCHAIN_VERSIONS"
+  exit 1
+fi
+
+echo "Using toolchain version: $TOOLCHAIN_VERSION"
+
 case $ABI in
   armeabi* )
     TOOLCHAIN_PREFIX=arm-linux-androideabi
@@ -87,19 +135,48 @@ case $ABI in
     TOOLCHAIN=x86-$TOOLCHAIN_VERSION
     ARCH=x86
     ;;
-  * )
-    echo "ERROR: unknown abi: $ABI"
-    usage 1
-    ;;
 esac
 
 echo "Using CPU architecture: $ARCH"
-echo "Using ABI: $ABI"
 echo "Using toolchain: $TOOLCHAIN"
+
+if [ "x$USER" = "x" ]; then
+  USER=$USERNAME
+fi
+if [ "x$USER" = "x" ]; then
+  USER=$$
+fi
+
+SHA1SUM=
+for p in sha1sum gsha1sum; do
+  which $p >/dev/null 2>&1 || continue
+  SHA1SUM=$p
+  break
+done
+
+OPENSSL=openssl
+
+AWK=$ANDROID_NDK_ROOT/prebuilt/$HOST_TAG/bin/awk$EXE_EXT
+if [ ! -f $AWK ]; then
+  AWK=awk
+fi
+
+checksum()
+{
+  if [ "x$SHA1SUM" != "x" ]; then
+    $SHA1SUM | $AWK '{print $1}'
+  elif [ "x$OPENSSL" != "x" ]; then
+    $OPENSSL sha1 | $AWK '{print $2}'
+  else
+    echo "ERROR: can't calculate checksum! Install sha1sum or openssl utility and try again" >&2
+    exit 1
+  fi
+}
 
 TOOLCHAIN_DIR=/tmp/android-toolchain/$USER/$TOOLCHAIN
 
-NDK_ID_NEW=`ls -ld $ANDROID_NDK_ROOT 2>/dev/null | sha1sum | awk '{print $1}'`
+#NDK_ID_NEW=`tar cf - $ANDROID_NDK_ROOT 2>/dev/null | checksum`
+NDK_ID_NEW=`ls -ld $ANDROID_NDK_ROOT 2>/dev/null | checksum`
 NDK_ID_OLD=`cat $TOOLCHAIN_DIR/.done 2>/dev/null`
 if [ "x$NDK_ID_OLD" != "x$NDK_ID_NEW" ]; then
   rm -Rf $TOOLCHAIN_DIR
@@ -110,4 +187,4 @@ fi
 PATH=$TOOLCHAIN_DIR/bin:$PATH
 export PATH
 
-export ARCH ABI TOOLCHAIN_PREFIX
+export ANDROID_NDK_ROOT ARCH ABI TOOLCHAIN_PREFIX TOOLCHAIN_VERSION TOOLCHAIN
