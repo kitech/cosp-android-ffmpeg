@@ -7,6 +7,7 @@ ANDROID_NDK_ROOT=
 PREFIX=
 ABI=armeabi
 TOOLCHAIN_VERSION=4.4.3
+OUTDIR=
 
 usage()
 {
@@ -19,6 +20,7 @@ usage()
   echo "                         Supported values: $SUPPORTED_ABIS"
   echo "  --toolchain=<version>  Optional toolchain version [default: $TOOLCHAIN_VERSION]"
   echo "                         Supported values: $SUPPORTED_TOOLCHAIN_VERSIONS"
+  echo "  --build-out=<path>     Set build directory"
   exit $1
 }
 
@@ -79,6 +81,12 @@ while true; do
       shift
       TOOLCHAIN_VERSION=$1
       ;;
+    --build-out=* )
+      OUTDIR=`expr "x$option" : "x--build-out=\(.*\)"`
+      ;;
+    --build-out )
+      shift
+      OUTDIR=$1
     * )
       echo "ERROR: unknown option: $option" >&2
       usage 1
@@ -191,5 +199,7 @@ export PATH
 
 export ANDROID_NDK_ROOT ARCH ABI TOOLCHAIN_PREFIX TOOLCHAIN_VERSION TOOLCHAIN
 
-OUTDIR=/tmp/cosp-android-$ARCH-$TOOLCHAIN_VERSION-$USER
+if [ "x$OUTDIR" = "x" ]; then
+  OUTDIR=/tmp/cosp-android-$ARCH-$TOOLCHAIN_VERSION-$USER
+fi
 export OUTDIR
