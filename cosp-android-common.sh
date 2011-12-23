@@ -87,6 +87,7 @@ while true; do
     --build-out )
       shift
       OUTDIR=$1
+      ;;
     * )
       echo "ERROR: unknown option: $option" >&2
       usage 1
