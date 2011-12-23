@@ -32,7 +32,7 @@ usage()
 
 HOST_OS=`uname -s | tr '[A-Z]' '[a-z]'`
 case $HOST_OS in
-  darwin* )
+  darwin*|freebsd*)
     HOST_TAG=darwin-x86
     ;;
   linux* )
@@ -47,6 +47,27 @@ case $HOST_OS in
     ;;
 esac
 export HOST_TAG
+
+case "$HOST_OS" in
+    linux* )
+        HOST_NUM_CPUS=`cat /proc/cpuinfo | grep processor | wc -l`
+        ;;
+    darwin*|freebsd* )
+        HOST_NUM_CPUS=`sysctl -n hw.ncpu`
+        ;;
+    cygwin*|mingw*)
+        HOST_NUM_CPUS=$NUMBER_OF_PROCESSORS
+        ;;
+    *)  # let's play safe here
+        HOST_NUM_CPUS=1
+esac
+export HOST_NUM_CPUS
+
+# Define BUILD_NUM_JOBS as the double of HOST_NUM_CPUS. This is used to
+# run Make commands in parralles, as in 'make -j$BUILD_NUM_JOBS'
+#
+BUILD_NUM_JOBS=`expr $HOST_NUM_CPUS \* 2`
+export BUILD_NUM_JOBS
 
 if [ "x$1" = "x" ]; then
   usage 0
