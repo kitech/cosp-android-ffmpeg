@@ -230,15 +230,14 @@ checksum()
   fi
 }
 
-TOOLCHAIN_DIR=/tmp/android-toolchain-$ARCH-$TOOLCHAIN_VERSION-$USER
+#NDK_ID=`tar cf - $ANDROID_NDK_ROOT 2>/dev/null | checksum`
+NDK_ID=`ls -ld $ANDROID_NDK_ROOT 2>/dev/null | checksum`
 
-#NDK_ID_NEW=`tar cf - $ANDROID_NDK_ROOT 2>/dev/null | checksum`
-NDK_ID_NEW=`ls -ld $ANDROID_NDK_ROOT 2>/dev/null | checksum`
-NDK_ID_OLD=`cat $TOOLCHAIN_DIR/.done 2>/dev/null`
-if [ "x$NDK_ID_OLD" != "x$NDK_ID_NEW" ]; then
+TOOLCHAIN_DIR=/tmp/android-toolchain-$ARCH-$TOOLCHAIN_VERSION-$USER-$NDK_ID
+if [ ! -f $TOOLCHAIN_DIR/.done ]; then
   rm -Rf $TOOLCHAIN_DIR
   $TOOLCHAIN_SCRIPT --arch=$ARCH --toolchain=$TOOLCHAIN --install-dir=$TOOLCHAIN_DIR || exit 1
-  echo $NDK_ID_NEW >$TOOLCHAIN_DIR/.done || exit 1
+  touch $TOOLCHAIN_DIR/.done || exit 1
 fi
 
 PATH=$TOOLCHAIN_DIR/bin:$PATH
