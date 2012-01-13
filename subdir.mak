@@ -37,6 +37,8 @@ define RULES
 $(EXAMPLES) $(TESTPROGS) $(TOOLS): %$(EXESUF): %.o
 	$$(LD) $(LDFLAGS) -o $$@ $$^ -l$(FULLNAME) $(FFEXTRALIBS) $$(ELIBS)
 
+ifneq (android,$(TARGET_OS))
+
 $(SUBDIR)$(SLIBNAME): $(SUBDIR)$(SLIBNAME_WITH_MAJOR)
 	$(Q)cd ./$(SUBDIR) && $(LN_S) $(SLIBNAME_WITH_MAJOR) $(SLIBNAME)
 
@@ -47,6 +49,19 @@ $(SUBDIR)$(SLIBNAME_WITH_MAJOR): $(OBJS) $(SUBDIR)lib$(NAME).ver
 
 ifdef SUBDIR
 $(SUBDIR)$(SLIBNAME_WITH_MAJOR): $(DEP_LIBS)
+endif
+
+else
+
+$(SUBDIR)$(SLIBNAME): $(OBJS) $(SUBDIR)lib$(NAME).ver
+	$(SLIB_CREATE_DEF_CMD)
+	$$(LD) $(SHFLAGS) $(LDFLAGS) -o $$@ $$(filter %.o,$$^) $(FFEXTRALIBS) $(EXTRAOBJS)
+	$(SLIB_EXTRA_CMD)
+
+ifdef SUBDIR
+$(SUBDIR)$(SLIBNAME): $(DEP_LIBS)
+endif
+
 endif
 
 clean::

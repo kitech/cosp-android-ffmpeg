@@ -2645,9 +2645,13 @@ case $target_os in
         enable dos_paths
         add_cppflags -U__STRICT_ANSI__
         ;;
-    linux)
+    linux|android)
         add_cppflags -D_POSIX_C_SOURCE=200112 -D_XOPEN_SOURCE=600
         enable dv1394
+        if [ "x$target_os" = "xandroid" ]; then
+          SLIB_INSTALL_NAME='$(SLIBNAME)'
+          SLIB_INSTALL_LINKS=
+        fi
         ;;
     irix*)
         target_os=irix
@@ -3535,6 +3539,7 @@ HOSTCFLAGS=$host_cflags
 HOSTEXESUF=$HOSTEXESUF
 HOSTLDFLAGS=$host_ldflags
 HOSTLIBS=$host_libs
+TARGET_OS=$target_os
 TARGET_EXEC=$target_exec
 TARGET_PATH=$target_path
 SDL_LIBS=$sdl_libs
