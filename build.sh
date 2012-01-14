@@ -15,6 +15,20 @@ cd $OUTDIR || exit 1
 CFLAGS="-O3 -fno-short-enums -fno-strict-aliasing"
 CFLAGS="$CFLAGS -Wno-psabi -Wno-cast-qual -Wno-deprecated-declarations"
 
+CONFIGURE_ARGS=""
+case $ABI in
+  armeabi)
+    CONFIGURE_ARGS="$CONFIGURE_ARGS --enable-armv5te"
+    ;;
+  armeabi-v7a)
+    CONFIGURE_ARGS="$CONFIGURE_ARGS --enable-armv5te --enable-armvfp --enable-neon"
+    CFLAGS="$CFLAGS -march=armv7-a -mfloat-abi=softfp -mfpu=neon"
+    ;;
+  x86)
+    CONFIGURE_ARGS="$CONFIGURE_ARGS --enable-sse --enable-sse3"
+    ;;
+esac
+
 $CWD/configure \
   --prefix=$PREFIX \
   --bindir=$PREFIX/bin/$ABI \
@@ -47,6 +61,7 @@ $CWD/configure \
   --disable-outdevs \
   --enable-zlib \
   --disable-bzlib \
+  $CONFIGURE_ARGS \
   || exit 1
 
 make -j$BUILD_NUM_JOBS || exit 1
