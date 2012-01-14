@@ -2,7 +2,7 @@
 
 cd `dirname $0` || exit 1
 
-. cosp-android-common.sh || exit 1
+. ./cosp-android-common.sh || exit 1
 
 export PREFIX ARCH
 
