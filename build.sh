@@ -16,6 +16,8 @@ CFLAGS="-O3 -fno-short-enums -fno-strict-aliasing"
 CFLAGS="$CFLAGS -ftree-vectorize -mvectorize-with-neon-quad"
 CFLAGS="$CFLAGS -Wno-psabi -Wno-deprecated-declarations -Wno-unused-variable"
 
+LDFLAGS=""
+
 CONFIGURE_ARGS=""
 case $ABI in
   armeabi)
@@ -24,11 +26,14 @@ case $ABI in
   armeabi-v7a)
     CONFIGURE_ARGS="$CONFIGURE_ARGS --enable-armv5te --enable-armvfp --enable-neon"
     CFLAGS="$CFLAGS -march=armv7-a -mfloat-abi=softfp -mfpu=neon"
+    LDFLAGS="$LDFLAGS -Wl,--fix-cortex-a8"
     ;;
   x86)
     CONFIGURE_ARGS="$CONFIGURE_ARGS --enable-sse --enable-sse3"
     ;;
 esac
+
+export CFLAGS LDFLAGS
 
 $CWD/configure \
   --prefix=$PREFIX \
