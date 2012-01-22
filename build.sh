@@ -13,7 +13,6 @@ mkdir -p $OUTDIR || exit 1
 cd $OUTDIR || exit 1
 
 CFLAGS="-O3 -fno-short-enums -fno-strict-aliasing"
-CFLAGS="$CFLAGS -ftree-vectorize -mvectorize-with-neon-quad"
 CFLAGS="$CFLAGS -Wno-psabi -Wno-deprecated-declarations -Wno-unused-variable"
 
 LDFLAGS=""
@@ -26,6 +25,7 @@ case $ABI in
   armeabi-v7a)
     CONFIGURE_ARGS="$CONFIGURE_ARGS --enable-armv5te --enable-armvfp --enable-neon"
     CFLAGS="$CFLAGS -march=armv7-a -mfloat-abi=softfp -mfpu=neon"
+    CFLAGS="$CFLAGS -ftree-vectorize -mvectorize-with-neon-quad"
     LDFLAGS="$LDFLAGS -Wl,--fix-cortex-a8"
     ;;
   x86)
