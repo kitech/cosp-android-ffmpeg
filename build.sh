@@ -15,6 +15,8 @@ cd $OUTDIR || exit 1
 CFLAGS="-O3 -fno-short-enums -fno-strict-aliasing"
 CFLAGS="$CFLAGS -Wno-psabi -Wno-cast-qual -Wno-deprecated-declarations"
 
+LDFLAGS=""
+
 CONFIGURE_ARGS=""
 case $ABI in
   armeabi)
@@ -23,11 +25,14 @@ case $ABI in
   armeabi-v7a)
     CONFIGURE_ARGS="$CONFIGURE_ARGS --enable-armv5te --enable-armvfp --enable-neon"
     CFLAGS="$CFLAGS -march=armv7-a -mfloat-abi=softfp -mfpu=neon"
+    LDFLAGS="$LDFLAGS -Wl,--fix-cortex-a8"
     ;;
   x86)
     CONFIGURE_ARGS="$CONFIGURE_ARGS --enable-sse --enable-sse3"
     ;;
 esac
+
+export CFLAGS LDFLAGS
 
 $CWD/configure \
   --prefix=$PREFIX \
