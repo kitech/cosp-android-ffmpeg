@@ -59,12 +59,13 @@ $CWD/configure \
   --disable-ffprobe \
   --disable-ffserver \
   --disable-encoders \
+  --disable-protocols \
   --enable-protocol=file \
   --enable-protocol=http \
-  --enable-avformat \
-  --enable-avcodec \
   --disable-indevs \
   --disable-outdevs \
+  --disable-muxers \
+  --disable-filters \
   --enable-zlib \
   --disable-bzlib \
   $CONFIGURE_ARGS \
