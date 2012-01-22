@@ -13,7 +13,8 @@ mkdir -p $OUTDIR || exit 1
 cd $OUTDIR || exit 1
 
 CFLAGS="-O3 -fno-short-enums -fno-strict-aliasing"
-CFLAGS="$CFLAGS -Wno-psabi -Wno-cast-qual -Wno-deprecated-declarations"
+CFLAGS="$CFLAGS -ftree-vectorize -mvectorize-with-neon-quad"
+CFLAGS="$CFLAGS -Wno-psabi -Wno-deprecated-declarations -Wno-unused-variable"
 
 CONFIGURE_ARGS=""
 case $ABI in
