@@ -46,7 +46,6 @@ $CWD/configure \
   --enable-shared \
   --enable-static \
   --enable-pic \
-  --disable-yasm \
   --enable-cross-compile \
   --target-os=android \
   --arch=$ARCH \
