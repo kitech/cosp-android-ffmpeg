@@ -46,6 +46,7 @@ $CWD/configure \
   --enable-shared \
   --enable-static \
   --enable-pic \
+  --enable-small \
   --enable-cross-compile \
   --target-os=android \
   --arch=$ARCH \
@@ -57,14 +58,60 @@ $CWD/configure \
   --sysroot=$TOOLCHAIN_DIR/sysroot \
   --extra-cflags="$CFLAGS" \
   --extra-ldflags="$LDFLAGS" \
-  --disable-encoders \
-  --disable-protocols \
+  --disable-debug \
+  --disable-avdevice \
+  --disable-avfilter \
+  --disable-postproc \
+  --disable-swresample \
+  --disable-swscale \
+  --disable-everything \
+  --enable-decoder=aac \
+  --enable-decoder=adpcm_g726 \
+  --enable-decoder=adpcm_ms \
+  --enable-decoder=alac \
+  --enable-decoder=amrnb \
+  --enable-decoder=ape \
+  --enable-decoder=armwb \
+  --enable-decoder=flac \
+  --enable-decoder=gsm \
+  --enable-decoder=gsm_ms \
+  --enable-decoder=mp2 \
+  --enable-decoder=mp3 \
+  --enable-decoder=pcm_alaw \
+  --enable-decoder=pcm_s16be \
+  --enable-decoder=pcm_s16le \
+  --enable-decoder=pcm_s16le_planar \
+  --enable-decoder=pcm_u16be \
+  --enable-decoder=pcm_u16le \
+  --enable-decoder=pcm_ulaw \
+  --enable-decoder=tta \
+  --enable-decoder=twinvq \
+  --enable-decoder=vorbis \
+  --enable-decoder=wmapro \
+  --enable-decoder=wmav1 \
+  --enable-decoder=wmav2 \
+  --enable-demuxer=aac \
+  --enable-demuxer=amr \
+  --enable-demuxer=ape \
+  --enable-demuxer=asf \
+  --enable-demuxer=flac \
+  --enable-demuxer=mov \
+  --enable-demuxer=mp3 \
+  --enable-demuxer=ogg \
+  --enable-demuxer=pcm_alaw \
+  --enable-demuxer=pcm_s16be \
+  --enable-demuxer=pcm_s16le \
+  --enable-demuxer=pcm_u16be \
+  --enable-demuxer=pcm_u16le \
+  --enable-demuxer=pcm_ulaw \
+  --enable-demuxer=tta \
+  --enable-demuxer=vqf \
+  --enable-demuxer=wav \
+  --enable-parser=aac \
+  --enable-parser=flac \
+  --enable-parser=mpegaudio \
   --enable-protocol=file \
   --enable-protocol=http \
-  --disable-indevs \
-  --disable-outdevs \
-  --disable-muxers \
-  --disable-filters \
   $CONFIGURE_ARGS \
   || exit 1
 
