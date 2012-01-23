@@ -69,8 +69,6 @@ $CWD/configure \
   --disable-outdevs \
   --disable-muxers \
   --disable-filters \
-  --enable-zlib \
-  --disable-bzlib \
   $CONFIGURE_ARGS \
   || exit 1
 
