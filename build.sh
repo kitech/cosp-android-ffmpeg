@@ -33,6 +33,9 @@ case $ABI in
     ;;
 esac
 
+CFLAGS="$CFLAGS -I$PREFIX/include"
+LDFLAGS="$LDFLAGS -L$PREFIX/lib/$ABI"
+
 export CFLAGS LDFLAGS
 
 $CWD/configure \
@@ -54,6 +57,7 @@ $CWD/configure \
   --nm=$TOOLCHAIN_PREFIX-nm \
   --sysroot=$TOOLCHAIN_DIR/sysroot \
   --extra-cflags="$CFLAGS" \
+  --extra-ldflags="$LDFLAGS" \
   --disable-ffmpeg \
   --disable-ffplay \
   --disable-ffprobe \
